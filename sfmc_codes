@@ -159,14 +159,20 @@ body {
   color: var(--danger);
   background-color: #FEF2F2;
   border: 1px solid #FECACA;
-  padding: 10px;
+  padding: 10px 12px;
   border-radius: var(--radius);
   margin-bottom: 14px;
   font-weight: 500;
   font-size: 0.8rem;
+  line-height: 1.5;
 }
 .error:empty {
   display: none;
+}
+.folder-missing-text {
+  color: var(--danger);
+  font-weight: 600;
+  font-size: 0.75rem;
 }
 .table-container {
   background: var(--card-bg);
@@ -259,6 +265,7 @@ SET @load = RequestParameter("load")
 Platform.Load("Core", "1.1.1");
 var automationData = [];
 var folderOptions = [];
+var missingFolderDetails = [];
 var errorMessage = "";
 var shouldLoad = false;
 var totalCount = 0;
@@ -439,18 +446,31 @@ try {
 
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
+      var autoName = item.Name || "Unnamed Automation";
       var statusCode = String(item.Status);
       var statusName = statusMap[statusCode] || "Unknown";
       var categoryId = (item.CategoryID !== null && item.CategoryID !== undefined) ? String(item.CategoryID) : "";
-      var folderInfo = folderMap[categoryId];
-      var folderName = folderInfo ? folderInfo.name : (categoryId ? "Folder (" + categoryId + ")" : "Unassigned");
-      var locationPath = (folderInfo && folderInfo.location) ? folderInfo.location : folderName;
+      var folderInfo = (categoryId && folderMap[categoryId]) ? folderMap[categoryId] : null;
+      var folderMissing = !folderInfo;
+
+      var folderName = folderMissing
+        ? "Folder Not Found"
+        : folderInfo.name;
+
+      var locationPath = folderMissing
+        ? (categoryId ? "Folder name is not found — please check and confirm the folder (ID: " + categoryId + ")" : "Folder name is not found — please check and confirm the folder")
+        : (folderInfo.location || folderInfo.name);
+
+      if (folderMissing) {
+        missingFolderDetails.push(autoName + (categoryId ? " [Folder ID: " + categoryId + "]" : " [No Folder ID]"));
+      }
 
       automationData.push({
-        name: item.Name || "",
+        name: autoName,
         status: statusName,
         folder: folderName,
         location: locationPath,
+        folderMissing: folderMissing,
         createdDate: item.CreatedDate || "",
         modifiedDate: item.ModifiedDate || ""
       });
@@ -544,8 +564,18 @@ try {
 
   <div class="error">
     <script runat="server">
+    var messages = [];
     if (errorMessage !== "") {
-      Write("ERROR: " + safe(errorMessage));
+      messages.push("ERROR: " + safe(errorMessage));
+    }
+    if (missingFolderDetails.length > 0) {
+      messages.push(
+        "Folder name is not found — please check and confirm the folder for: " +
+        safe(missingFolderDetails.join(", "))
+      );
+    }
+    if (messages.length > 0) {
+      Write(messages.join("<br>"));
     }
     </script>
   </div>
@@ -574,12 +604,20 @@ try {
           if (a.status == "Stopped" || a.status == "Error") badgeColor = "#EF4444";
           if (a.status == "Ready") badgeColor = "#10B981";
 
+          var folderCellHtml = a.folderMissing
+            ? "<span class='folder-missing-text'>" + safe(a.folder) + "</span>"
+            : "<strong>" + safe(a.folder) + "</strong>";
+
+          var locationCellHtml = a.folderMissing
+            ? "<span class='folder-missing-text'>" + safe(a.location) + "</span>"
+            : "<span class='location-path'>" + safe(a.location) + "</span>";
+
           Write("<tr data-folder=\"" + safe(a.location.toLowerCase()) + "\" data-status=\"" + safe(a.status.toLowerCase()) + "\">");
           Write("<td style='text-align:center; color:#64748b;'>" + (j + 1) + "</td>");
           Write("<td><strong>" + safe(a.name) + "</strong></td>");
           Write("<td><span class='badge' style='background:" + badgeColor + "'>" + safe(a.status) + "</span></td>");
-          Write("<td><strong>" + safe(a.folder) + "</strong></td>");
-          Write("<td><span class='location-path'>" + safe(a.location) + "</span></td>");
+          Write("<td>" + folderCellHtml + "</td>");
+          Write("<td>" + locationCellHtml + "</td>");
           Write("<td style='color:#64748b;'>" + safe(formatDate(a.createdDate)) + "</td>");
           Write("<td style='color:#64748b;'>" + safe(formatDate(a.modifiedDate)) + "</td>");
           Write("</tr>");
