@@ -222,10 +222,17 @@ td:nth-child(8) { background-color: #FFFBEB; }
 tbody tr:nth-child(even) td {
   filter: brightness(0.985);
 }
+
+/* Hover highlight only on Scheduled and Running rows */
 tbody tr:hover td {
+  filter: none;
+}
+tbody tr[data-status="scheduled"]:hover td,
+tbody tr[data-status="running"]:hover td {
   background-color: #E0E7FF;
   filter: none;
 }
+
 tbody tr:last-child td {
   border-bottom: none;
 }
