@@ -544,7 +544,7 @@ try {
   </div>
 
   <div class="filter-bar">
-    <input type="text" id="search" class="search-input" placeholder="Search automation name, folder, location, key, or status..." onkeyup="filterTable()">
+    <input type="text" id="search" class="search-input" placeholder="Search automation name, folder, location, key, or status..." oninput="filterTable()" onkeyup="filterTable()">
     <select id="folderFilter" class="folder-select" onchange="filterTable()">
       <option value="">All Folders &amp; Locations</option>
       <script runat="server">
@@ -615,7 +615,6 @@ var selectedStatus = "";
 function selectStatus(cardEl) {
   var clickedStatus = (cardEl.getAttribute("data-status") || "").toLowerCase();
 
-  // Clicking Total, or clicking the already-active status card, resets to All (Total)
   if (clickedStatus === "" || selectedStatus === clickedStatus) {
     selectedStatus = "";
   } else {
@@ -636,17 +635,20 @@ function selectStatus(cardEl) {
 }
 
 function filterTable() {
-  var query = document.getElementById("search").value.toLowerCase().trim();
-  var selectedFolder = document.getElementById("folderFilter").value.toLowerCase();
+  var searchEl = document.getElementById("search");
+  var folderEl = document.getElementById("folderFilter");
+  var query = searchEl ? searchEl.value.toLowerCase().trim() : "";
+  var selectedFolder = folderEl ? folderEl.value.toLowerCase() : "";
   var rows = document.querySelectorAll("#automationTable tbody tr");
 
   rows.forEach(function(row) {
-    if (row.cells.length < 8) return;
-    var rowText = row.innerText.toLowerCase();
+    if (!row.hasAttribute("data-status")) return;
+
+    var rowText = (row.textContent || row.innerText || "").toLowerCase();
     var rowFolder = (row.getAttribute("data-folder") || "").toLowerCase();
     var rowStatus = (row.getAttribute("data-status") || "").toLowerCase();
 
-    var matchesText = !query || rowText.includes(query);
+    var matchesText = !query || rowText.indexOf(query) !== -1;
     var matchesFolder = !selectedFolder || rowFolder === selectedFolder || rowFolder.indexOf(selectedFolder + " / ") === 0;
     var matchesStatus = !selectedStatus || rowStatus === selectedStatus;
 
