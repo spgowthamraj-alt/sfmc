@@ -218,7 +218,6 @@ td:last-child {
 #automationTable tbody td:nth-child(5) { background-color: #F0F9FF; }
 #automationTable tbody td:nth-child(6) { background-color: #FAFAFA; }
 #automationTable tbody td:nth-child(7) { background-color: #FAFAFA; }
-#automationTable tbody td:nth-child(8) { background-color: #FFFBEB; }
 
 /* Consistent light-blue hover across all table rows */
 #automationTable tbody tr:hover > td {
@@ -229,14 +228,13 @@ tbody tr:last-child td {
   border-bottom: none;
 }
 
-th:nth-child(1), td:nth-child(1) { width: 4%; text-align: center; }
-th:nth-child(2), td:nth-child(2) { width: 22%; }
-th:nth-child(3), td:nth-child(3) { width: 11%; }
-th:nth-child(4), td:nth-child(4) { width: 14%; }
-th:nth-child(5), td:nth-child(5) { width: 23%; }
-th:nth-child(6), td:nth-child(6) { width: 110px; }
-th:nth-child(7), td:nth-child(7) { width: 110px; }
-th:nth-child(8), td:nth-child(8) { width: 15%; }
+th:nth-child(1), td:nth-child(1) { width: 5%; text-align: center; }
+th:nth-child(2), td:nth-child(2) { width: 27%; }
+th:nth-child(3), td:nth-child(3) { width: 12%; }
+th:nth-child(4), td:nth-child(4) { width: 16%; }
+th:nth-child(5), td:nth-child(5) { width: 22%; }
+th:nth-child(6), td:nth-child(6) { width: 9%; }
+th:nth-child(7), td:nth-child(7) { width: 9%; }
 
 .location-path {
   font-size: 0.75rem;
@@ -251,15 +249,6 @@ th:nth-child(8), td:nth-child(8) { width: 15%; }
   color: #FFFFFF;
   text-align: center;
   white-space: nowrap;
-}
-code {
-  font-family: monospace;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid #FDE68A;
-  padding: 2px 5px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  word-break: break-all;
 }
 </style>
 
@@ -435,7 +424,6 @@ try {
     var folderMap = buildFolderMap(api);
     var cols = [
       "Name",
-      "CustomerKey",
       "Status",
       "CategoryID",
       "CreatedDate",
@@ -464,8 +452,7 @@ try {
         folder: folderName,
         location: locationPath,
         createdDate: item.CreatedDate || "",
-        modifiedDate: item.ModifiedDate || "",
-        key: item.CustomerKey || ""
+        modifiedDate: item.ModifiedDate || ""
       });
 
       if (!seenFolders[locationPath]) {
@@ -543,7 +530,7 @@ try {
   </div>
 
   <div class="filter-bar">
-    <input type="text" id="search" class="search-input" placeholder="Search automation name, folder, location, key, or status..." oninput="filterTable()" onkeyup="filterTable()">
+    <input type="text" id="search" class="search-input" placeholder="Search automation name, folder, location, or status..." oninput="filterTable()" onkeyup="filterTable()">
     <select id="folderFilter" class="folder-select" onchange="filterTable()">
       <option value="">All Folders &amp; Locations</option>
       <script runat="server">
@@ -574,7 +561,6 @@ try {
           <th>Location</th>
           <th>Created Date</th>
           <th>Modified Date</th>
-          <th>Customer Key</th>
         </tr>
       </thead>
       <tbody>
@@ -596,11 +582,10 @@ try {
           Write("<td><span class='location-path'>" + safe(a.location) + "</span></td>");
           Write("<td style='color:#64748b;'>" + safe(formatDate(a.createdDate)) + "</td>");
           Write("<td style='color:#64748b;'>" + safe(formatDate(a.modifiedDate)) + "</td>");
-          Write("<td><code>" + safe(a.key) + "</code></td>");
           Write("</tr>");
         }
         if (automationData.length === 0 && errorMessage === "" && shouldLoad) {
-          Write("<tr><td colspan='8' style='text-align: center; color: #64748B; padding: 20px;'>No automation records found.</td></tr>");
+          Write("<tr><td colspan='7' style='text-align: center; color: #64748B; padding: 20px;'>No automation records found.</td></tr>");
         }
         </script>
       </tbody>
