@@ -220,15 +220,9 @@ td:last-child {
 #automationTable tbody td:nth-child(7) { background-color: #FAFAFA; }
 #automationTable tbody td:nth-child(8) { background-color: #FFFBEB; }
 
-/* Table-row-only hover highlight */
+/* Consistent light-blue hover across all table rows */
 #automationTable tbody tr:hover > td {
-  background-color: #E2E8F0;
-}
-#automationTable tbody tr[data-status="scheduled"]:hover > td {
-  background-color: #CFFAFE;
-}
-#automationTable tbody tr[data-status="running"]:hover > td {
-  background-color: #D1FAE5;
+  background-color: #E0E7FF;
 }
 
 tbody tr:last-child td {
