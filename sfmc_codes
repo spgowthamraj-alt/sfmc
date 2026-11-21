@@ -10,7 +10,7 @@
   --card-bg: #FFFFFF;
   --text-main: #1E293B;
   --text-muted: #64748B;
-  --border-color: #E2E8F0;
+  --border-color: #CBD5E1;
   --success: #10B981;
   --warning: #F59E0B;
   --danger: #EF4444;
@@ -81,11 +81,33 @@ body {
   padding: 10px 12px;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  border: 1px solid var(--border-color);
+  border: 1.5px solid #E2E8F0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
 }
+.card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.08);
+  border-color: #94A3B8;
+}
+.card:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.card.active {
+  border-color: var(--primary);
+  background-color: #EEF2FF;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.18);
+}
+.card.scheduled.active { border-color: var(--info); background-color: #ECFEFF; }
+.card.running.active { border-color: var(--success); background-color: #ECFDF5; }
+.card.paused.active { border-color: var(--warning); background-color: #FFFBEB; }
+.card.stopped.active { border-color: var(--danger); background-color: #FEF2F2; }
+.card.ready.active { border-color: var(--success); background-color: #ECFDF5; }
 .card p {
   font-size: 0.7rem;
   font-weight: 600;
@@ -103,6 +125,7 @@ body {
 .card.running h3 { color: var(--success); }
 .card.paused h3 { color: var(--warning); }
 .card.stopped h3 { color: var(--danger); }
+.card.ready h3 { color: var(--success); }
 .filter-bar {
   display: grid;
   grid-template-columns: 1fr 280px;
@@ -119,7 +142,7 @@ body {
   width: 100%;
   padding: 10px 14px;
   font-size: 0.85rem;
-  border: 1px solid var(--border-color);
+  border: 1px solid #E2E8F0;
   border-radius: var(--radius);
   background-color: var(--card-bg);
   color: var(--text-main);
@@ -159,24 +182,54 @@ table {
   table-layout: auto;
 }
 th {
-  background-color: #F1F5F9;
-  color: var(--text-muted);
-  font-weight: 600;
+  background-color: #E2E8F0;
+  color: #334155;
+  font-weight: 700;
   text-transform: uppercase;
   font-size: 0.7rem;
   letter-spacing: 0.05em;
   padding: 10px 12px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 2px solid #94A3B8;
+  border-right: 1px solid #CBD5E1;
+}
+th:last-child {
+  border-right: none;
 }
 td {
   padding: 10px 12px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1.5px solid var(--border-color);
+  border-right: 1px solid #E2E8F0;
   color: var(--text-main);
   font-size: 0.8rem;
   word-break: break-word;
   white-space: normal;
   vertical-align: top;
 }
+td:last-child {
+  border-right: none;
+}
+
+/* Subtle column tints for quick visual scanning */
+td:nth-child(1) { background-color: #F8FAFC; }
+td:nth-child(2) { background-color: #EEF2FF; }
+td:nth-child(3) { background-color: #F8FAFC; }
+td:nth-child(4) { background-color: #F0FDF4; }
+td:nth-child(5) { background-color: #F0F9FF; }
+td:nth-child(6) { background-color: #FAFAFA; }
+td:nth-child(7) { background-color: #FAFAFA; }
+td:nth-child(8) { background-color: #FFFBEB; }
+
+tbody tr:nth-child(even) td {
+  filter: brightness(0.985);
+}
+tbody tr:hover td {
+  background-color: #E0E7FF;
+  filter: none;
+}
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
 th:nth-child(1), td:nth-child(1) { width: 4%; text-align: center; }
 th:nth-child(2), td:nth-child(2) { width: 22%; }
 th:nth-child(3), td:nth-child(3) { width: 11%; }
@@ -185,15 +238,10 @@ th:nth-child(5), td:nth-child(5) { width: 23%; }
 th:nth-child(6), td:nth-child(6) { width: 110px; }
 th:nth-child(7), td:nth-child(7) { width: 110px; }
 th:nth-child(8), td:nth-child(8) { width: 15%; }
-tbody tr:hover {
-  background-color: #F8FAFC;
-}
-tbody tr:last-child td {
-  border-bottom: none;
-}
+
 .location-path {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: #334155;
 }
 .badge {
   display: inline-block;
@@ -207,8 +255,9 @@ tbody tr:last-child td {
 }
 code {
   font-family: monospace;
-  background: #F1F5F9;
-  padding: 2px 4px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid #FDE68A;
+  padding: 2px 5px;
   border-radius: 4px;
   font-size: 0.75rem;
   word-break: break-all;
@@ -463,35 +512,35 @@ try {
     </form>
   </div>
 
-  <div class="dashboard">
-    <div class="card total">
+  <div class="dashboard" role="group" aria-label="Filter automations by status">
+    <button type="button" class="card total active" data-status="" onclick="selectStatus(this)">
       <p>Total</p>
       <h3><script runat="server">Write(totalCount);</script></h3>
-    </div>
-    <div class="card scheduled">
+    </button>
+    <button type="button" class="card scheduled" data-status="scheduled" onclick="selectStatus(this)">
       <p>Scheduled</p>
       <h3><script runat="server">Write(scheduledCount);</script></h3>
-    </div>
-    <div class="card running">
+    </button>
+    <button type="button" class="card running" data-status="running" onclick="selectStatus(this)">
       <p>Running</p>
       <h3><script runat="server">Write(runningCount);</script></h3>
-    </div>
-    <div class="card paused">
+    </button>
+    <button type="button" class="card paused" data-status="paused" onclick="selectStatus(this)">
       <p>Paused</p>
       <h3><script runat="server">Write(pausedCount);</script></h3>
-    </div>
-    <div class="card stopped">
+    </button>
+    <button type="button" class="card stopped" data-status="stopped" onclick="selectStatus(this)">
       <p>Stopped</p>
       <h3><script runat="server">Write(stoppedCount);</script></h3>
-    </div>
-    <div class="card">
+    </button>
+    <button type="button" class="card ready" data-status="ready" onclick="selectStatus(this)">
       <p>Ready</p>
       <h3><script runat="server">Write(readyCount);</script></h3>
-    </div>
-    <div class="card stopped">
+    </button>
+    <button type="button" class="card stopped" data-status="error" onclick="selectStatus(this)">
       <p>Error</p>
       <h3><script runat="server">Write(errorCount);</script></h3>
-    </div>
+    </button>
   </div>
 
   <div class="filter-bar">
@@ -540,7 +589,7 @@ try {
           if (a.status == "Stopped" || a.status == "Error") badgeColor = "#EF4444";
           if (a.status == "Ready") badgeColor = "#10B981";
 
-          Write("<tr data-folder=\"" + safe(a.location.toLowerCase()) + "\">");
+          Write("<tr data-folder=\"" + safe(a.location.toLowerCase()) + "\" data-status=\"" + safe(a.status.toLowerCase()) + "\">");
           Write("<td style='text-align:center; color:#64748b;'>" + (j + 1) + "</td>");
           Write("<td><strong>" + safe(a.name) + "</strong></td>");
           Write("<td><span class='badge' style='background:" + badgeColor + "'>" + safe(a.status) + "</span></td>");
@@ -561,6 +610,31 @@ try {
 </div>
 
 <script>
+var selectedStatus = "";
+
+function selectStatus(cardEl) {
+  var clickedStatus = (cardEl.getAttribute("data-status") || "").toLowerCase();
+
+  // Clicking Total, or clicking the already-active status card, resets to All (Total)
+  if (clickedStatus === "" || selectedStatus === clickedStatus) {
+    selectedStatus = "";
+  } else {
+    selectedStatus = clickedStatus;
+  }
+
+  var cards = document.querySelectorAll(".dashboard .card");
+  cards.forEach(function(card) {
+    var cardStatus = (card.getAttribute("data-status") || "").toLowerCase();
+    if (cardStatus === selectedStatus) {
+      card.classList.add("active");
+    } else {
+      card.classList.remove("active");
+    }
+  });
+
+  filterTable();
+}
+
 function filterTable() {
   var query = document.getElementById("search").value.toLowerCase().trim();
   var selectedFolder = document.getElementById("folderFilter").value.toLowerCase();
@@ -570,9 +644,13 @@ function filterTable() {
     if (row.cells.length < 8) return;
     var rowText = row.innerText.toLowerCase();
     var rowFolder = (row.getAttribute("data-folder") || "").toLowerCase();
+    var rowStatus = (row.getAttribute("data-status") || "").toLowerCase();
+
     var matchesText = !query || rowText.includes(query);
     var matchesFolder = !selectedFolder || rowFolder === selectedFolder || rowFolder.indexOf(selectedFolder + " / ") === 0;
-    row.style.display = (matchesText && matchesFolder) ? "" : "none";
+    var matchesStatus = !selectedStatus || rowStatus === selectedStatus;
+
+    row.style.display = (matchesText && matchesFolder && matchesStatus) ? "" : "none";
   });
 }
 </script>
