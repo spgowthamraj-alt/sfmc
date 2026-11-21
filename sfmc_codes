@@ -211,33 +211,24 @@ td:last-child {
 }
 
 /* Subtle column tints for quick visual scanning */
-td:nth-child(1) { background-color: #F8FAFC; }
-td:nth-child(2) { background-color: #EEF2FF; }
-td:nth-child(3) { background-color: #F8FAFC; }
-td:nth-child(4) { background-color: #F0FDF4; }
-td:nth-child(5) { background-color: #F0F9FF; }
-td:nth-child(6) { background-color: #FAFAFA; }
-td:nth-child(7) { background-color: #FAFAFA; }
-td:nth-child(8) { background-color: #FFFBEB; }
+#automationTable tbody td:nth-child(1) { background-color: #F8FAFC; }
+#automationTable tbody td:nth-child(2) { background-color: #EEF2FF; }
+#automationTable tbody td:nth-child(3) { background-color: #F8FAFC; }
+#automationTable tbody td:nth-child(4) { background-color: #F0FDF4; }
+#automationTable tbody td:nth-child(5) { background-color: #F0F9FF; }
+#automationTable tbody td:nth-child(6) { background-color: #FAFAFA; }
+#automationTable tbody td:nth-child(7) { background-color: #FAFAFA; }
+#automationTable tbody td:nth-child(8) { background-color: #FFFBEB; }
 
-tbody tr:nth-child(even) td {
-  filter: brightness(0.985);
-}
-
-/* Hover highlight on every row (1st, 2nd, 3rd, etc.) */
-tbody tr:hover td {
+/* Table-row-only hover highlight */
+#automationTable tbody tr:hover > td {
   background-color: #E2E8F0;
-  filter: none;
 }
-
-/* Distinct accent hover for Scheduled and Running rows */
-tbody tr[data-status="scheduled"]:hover td {
+#automationTable tbody tr[data-status="scheduled"]:hover > td {
   background-color: #CFFAFE;
-  filter: none;
 }
-tbody tr[data-status="running"]:hover td {
+#automationTable tbody tr[data-status="running"]:hover > td {
   background-color: #D1FAE5;
-  filter: none;
 }
 
 tbody tr:last-child td {
