@@ -1,1 +1,557 @@
 
+
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SFMC Automation Monitoring Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+:root {
+--primary: #4F46E5;
+--primary-hover: #4338CA;
+--bg-color: #F8FAFC;
+--card-bg: #FFFFFF;
+--text-main: #1E293B;
+--text-muted: #64748B;
+--border-color: #E2E8F0;
+--success: #10B981;
+--warning: #F59E0B;
+--danger: #EF4444;
+--info: #06B6D4;
+--radius: 8px;
+--shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+}
+o {
+o box-sizing: border-box;
+o margin: 0;
+o padding: 0;
+o }
+body {
+font-family: 'Inter', sans-serif;
+background-color: var(--bg-color);
+color: var(--text-main);
+padding: 16px;
+font-size: 0.85rem;
+line-height: 1.4;
+}
+.container {
+max-width: 1360px;
+margin: 0 auto;
+}
+.header-title {
+margin-bottom: 12px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+flex-wrap: wrap;
+gap: 10px;
+}
+.header-title h2 {
+font-size: 1.1rem;
+font-weight: 700;
+color: var(--text-main);
+}
+.header-title h2 span {
+font-size: 0.75rem;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 0.05em;
+color: var(--primary);
+display: block;
+}
+.search-btn {
+background-color: var(--primary);
+color: white;
+border: none;
+padding: 8px 16px;
+font-size: 0.85rem;
+font-weight: 600;
+border-radius: var(--radius);
+cursor: pointer;
+transition: background-color 0.2s;
+}
+.search-btn:hover {
+background-color: var(--primary-hover);
+}
+.dashboard {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+gap: 10px;
+margin-bottom: 14px;
+}
+.card {
+background: var(--card-bg);
+padding: 10px 12px;
+border-radius: var(--radius);
+box-shadow: var(--shadow);
+border: 1px solid var(--border-color);
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+}
+.card p {
+font-size: 0.7rem;
+font-weight: 600;
+color: var(--text-muted);
+text-transform: uppercase;
+letter-spacing: 0.025em;
+}
+.card h3 {
+font-size: 1.25rem;
+font-weight: 700;
+color: var(--text-main);
+margin-top: 2px;
+}
+.card.scheduled h3 { color: var(--info); }
+.card.running h3 { color: var(--success); }
+.card.paused h3 { color: var(--warning); }
+.card.stopped h3 { color: var(--danger); }
+.filter-bar {
+display: grid;
+grid-template-columns: 1fr 280px;
+gap: 10px;
+margin-bottom: 14px;
+}
+@media (max-width: 720px) {
+.filter-bar {
+grid-template-columns: 1fr;
+}
+}
+.search-input,
+.folder-select {
+width: 100%;
+padding: 10px 14px;
+font-size: 0.85rem;
+border: 1px solid var(--border-color);
+border-radius: var(--radius);
+background-color: var(--card-bg);
+color: var(--text-main);
+box-shadow: var(--shadow);
+outline: none;
+transition: border-color 0.2s;
+}
+.search-input:focus,
+.folder-select:focus {
+border-color: var(--primary);
+box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+}
+.error {
+color: var(--danger);
+background-color: #FEF2F2;
+border: 1px solid #FECACA;
+padding: 10px;
+border-radius: var(--radius);
+margin-bottom: 14px;
+font-weight: 500;
+font-size: 0.8rem;
+}
+.error:empty {
+display: none;
+}
+.table-container {
+background: var(--card-bg);
+border-radius: var(--radius);
+box-shadow: var(--shadow);
+border: 1px solid var(--border-color);
+overflow-x: auto;
+}
+table {
+width: 100%;
+border-collapse: collapse;
+text-align: left;
+table-layout: auto;
+}
+th {
+background-color: #F1F5F9;
+color: var(--text-muted);
+font-weight: 600;
+text-transform: uppercase;
+font-size: 0.7rem;
+letter-spacing: 0.05em;
+padding: 10px 12px;
+border-bottom: 1px solid var(--border-color);
+}
+td {
+padding: 10px 12px;
+border-bottom: 1px solid var(--border-color);
+color: var(--text-main);
+font-size: 0.8rem;
+word-break: break-word;
+white-space: normal;
+vertical-align: top;
+}
+th:nth-child(1), td:nth-child(1) { width: 4%; text-align: center; }
+th:nth-child(2), td:nth-child(2) { width: 22%; }
+th:nth-child(3), td:nth-child(3) { width: 11%; }
+th:nth-child(4), td:nth-child(4) { width: 14%; }
+th:nth-child(5), td:nth-child(5) { width: 23%; }
+th:nth-child(6), td:nth-child(6) { width: 110px; }
+th:nth-child(7), td:nth-child(7) { width: 110px; }
+th:nth-child(8), td:nth-child(8) { width: 15%; }
+tbody tr:hover {
+background-color: #F8FAFC;
+}
+tbody tr:last-child td {
+border-bottom: none;
+}
+.location-path {
+font-size: 0.75rem;
+color: var(--text-muted);
+}
+.badge {
+display: inline-block;
+padding: 2px 8px;
+border-radius: 9999px;
+font-size: 0.7rem;
+font-weight: 600;
+color: #FFFFFF;
+text-align: center;
+white-space: nowrap;
+}
+code {
+font-family: monospace;
+background: #F1F5F9;
+padding: 2px 4px;
+border-radius: 4px;
+font-size: 0.75rem;
+word-break: break-all;
+}
+</style>
+
+
+%%[
+SET @load = RequestParameter("load")
+]%%
+<script runat="server">
+Platform.Load("Core", "1.1.1");
+var automationData = [];
+var folderOptions = [];
+var errorMessage = "";
+var shouldLoad = false;
+var totalCount = 0;
+var scheduledCount = 0;
+var runningCount = 0;
+var pausedCount = 0;
+var stoppedCount = 0;
+var readyCount = 0;
+var errorCount = 0;
+var statusMap = {
+"-1": "Error",
+"0": "Building Error",
+"1": "Building",
+"2": "Ready",
+"3": "Running",
+"4": "Paused",
+"5": "Stopped",
+"6": "Scheduled",
+"7": "Awaiting Trigger",
+"8": "Inactive Trigger"
+};
+function safe(value) {
+if (value === null || value === undefined) return "";
+return String(value)
+.replace(/&/g, "&amp;")
+.replace(/</g, "&lt;")
+.replace(/>/g, "&gt;")
+.replace(/"/g, "&quot;")
+.replace(/'/g, "&#39;");
+}
+function formatDate(value) {
+if (!value || String(value).indexOf("0001-01-01") === 0) {
+return "N/A";
+}
+try {
+var d = new Date(value);
+if (isNaN(d.getTime())) {
+return String(value);
+}
+var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+var day = d.getDate();
+var month = months[d.getMonth()];
+var year = d.getFullYear();
+return (day < 10 ? "0" + day : day) + " " + month + " " + year;
+} catch (e) {
+return String(value);
+}
+}
+function retrieveRows(api, objectType, cols, filter) {
+var rows = [];
+var reqId = null;
+var hasMore = true;
+var guard = 0;
+while (hasMore && guard < 150) {
+guard++;
+var res;
+if (reqId == null) {
+res = filter ? api.retrieve(objectType, cols, filter) : api.retrieve(objectType, cols);
+} else {
+res = api.getNextBatch(objectType, reqId);
+}
+if (!res) {
+throw "Null response from " + objectType;
+}
+if (res.Status == "Error") {
+throw res.StatusMessage || ("Error retrieving " + objectType);
+}
+if (res.Results && res.Results.length) {
+for (var i = 0; i < res.Results.length; i++) {
+rows.push(res.Results[i]);
+}
+}
+hasMore = (res.HasMoreRows == true);
+reqId = res.RequestID || null;
+if (hasMore && !reqId) {
+break;
+}
+}
+return rows;
+}
+function buildFolderMap(api) {
+var mapById = {};
+var folderCols = ["ID", "Name", "ParentFolder.ID", "ParentFolder.Name", "ContentType"];
+var folders = [];
+try {
+var autoFilter = {
+Property: "ContentType",
+SimpleOperator: "IN",
+Value: ["automations", "automation"]
+};
+folders = retrieveRows(api, "DataFolder", folderCols, autoFilter);
+} catch (e1) {
+folders = [];
+}
+if (folders.length === 0) {
+try {
+folders = retrieveRows(api, "DataFolder", ["ID", "Name", "ParentFolder.ID", "ParentFolder.Name"], null);
+} catch (e2) {
+folders = [];
+}
+}
+for (var i = 0; i < folders.length; i++) {
+var f = folders[i];
+if (!f || f.ID === null || f.ID === undefined) continue;
+var id = String(f.ID);
+var parentId = "";
+var parentName = "";
+if (f.ParentFolder) {
+if (f.ParentFolder.ID !== null && f.ParentFolder.ID !== undefined && String(f.ParentFolder.ID) !== "0") {
+parentId = String(f.ParentFolder.ID);
+}
+if (f.ParentFolder.Name) {
+parentName = String(f.ParentFolder.Name);
+}
+}
+mapById[id] = {
+id: id,
+name: f.Name || ("Folder (" + id + ")"),
+parentId: parentId,
+parentName: parentName,
+location: ""
+};
+}
+for (var key in mapById) {
+if (!mapById.hasOwnProperty(key)) continue;
+var parts = [];
+var visited = {};
+var curr = key;
+while (curr && mapById[curr] && !visited[curr]) {
+visited[curr] = true;
+parts.unshift(mapById[curr].name);
+if (mapById[curr].parentId && mapById[mapById[curr].parentId]) {
+curr = mapById[curr].parentId;
+} else {
+if (mapById[curr].parentName && parts[0] !== mapById[curr].parentName) {
+parts.unshift(mapById[curr].parentName);
+}
+break;
+}
+}
+mapById[key].location = parts.join(" / ");
+}
+return mapById;
+}
+try {
+var loadParam = Variable.GetValue("@load");
+shouldLoad = (String(loadParam) == "1");
+if (shouldLoad) {
+var api = new Script.Util.WSProxy();
+var folderMap = buildFolderMap(api);
+var cols = [
+"Name",
+"CustomerKey",
+"Status",
+"CategoryID",
+"CreatedDate",
+"ModifiedDate"
+];
+var filter = {
+Property: "Status",
+SimpleOperator: "IN",
+Value: [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8]
+};
+var items = retrieveRows(api, "Automation", cols, filter);
+var seenFolders = {};
+for (var i = 0; i < items.length; i++) {
+var item = items[i];
+var statusCode = String(item.Status);
+var statusName = statusMap[statusCode] || "Unknown";
+var categoryId = (item.CategoryID !== null && item.CategoryID !== undefined) ? String(item.CategoryID) : "";
+var folderInfo = folderMap[categoryId];
+var folderName = folderInfo ? folderInfo.name : (categoryId ? "Folder (" + categoryId + ")" : "Unassigned");
+var locationPath = (folderInfo && folderInfo.location) ? folderInfo.location : folderName;
+automationData.push({
+name: item.Name || "",
+status: statusName,
+folder: folderName,
+location: locationPath,
+createdDate: item.CreatedDate || "",
+modifiedDate: item.ModifiedDate || "",
+key: item.CustomerKey || ""
+});
+if (!seenFolders[locationPath]) {
+seenFolders[locationPath] = true;
+folderOptions.push({
+value: locationPath.toLowerCase(),
+label: locationPath
+});
+}
+totalCount++;
+if (statusCode == "6") scheduledCount++;
+if (statusCode == "3") runningCount++;
+if (statusCode == "4") pausedCount++;
+if (statusCode == "5") stoppedCount++;
+if (statusCode == "2") readyCount++;
+if (statusCode == "-1" || statusCode == "0") errorCount++;
+}
+folderOptions.sort(function(a, b) {
+return a.label.localeCompare(b.label);
+});
+automationData.sort(function(a, b) {
+var dateA = a.modifiedDate ? new Date(a.modifiedDate).getTime() : 0;
+var dateB = b.modifiedDate ? new Date(b.modifiedDate).getTime() : 0;
+return dateB - dateA;
+});
+}
+} catch (e) {
+errorMessage = String(e);
+}
+</script>
+<div class="container">
+<div class="header-title">
+<div>
+<h2><span style="font-size:26px;">TGS</span> Automation Status Dashboard</h2>
+</div>
+<form method="GET">
+<input type="hidden" name="load" value="1">
+<button type="submit" class="search-btn">Load Automations</button>
+</form>
+</div>
+<div class="dashboard">
+<div class="card total">
+<p>Total</p>
+<h3><script runat="server">Write(totalCount);</script></h3>
+</div>
+<div class="card scheduled">
+<p>Scheduled</p>
+<h3><script runat="server">Write(scheduledCount);</script></h3>
+</div>
+<div class="card running">
+<p>Running</p>
+<h3><script runat="server">Write(runningCount);</script></h3>
+</div>
+<div class="card paused">
+<p>Paused</p>
+<h3><script runat="server">Write(pausedCount);</script></h3>
+</div>
+<div class="card stopped">
+<p>Stopped</p>
+<h3><script runat="server">Write(stoppedCount);</script></h3>
+</div>
+<div class="card">
+<p>Ready</p>
+<h3><script runat="server">Write(readyCount);</script></h3>
+</div>
+<div class="card stopped">
+<p>Error</p>
+<h3><script runat="server">Write(errorCount);</script></h3>
+</div>
+</div>
+<div class="filter-bar">
+<input type="text" id="search" class="search-input" placeholder="Search automation name, folder, location, key, or status..." onkeyup="filterTable()">
+<select id="folderFilter" class="folder-select" onchange="filterTable()">
+<option value="">All Folders &amp; Locations</option>
+<script runat="server">
+for (var fIdx = 0; fIdx < folderOptions.length; fIdx++) {
+var opt = folderOptions[fIdx];
+Write("<option value="" + safe(opt.value) + "">" + safe(opt.label) + "</option>");
+}
+</script>
+</select>
+</div>
+<div class="error">
+<script runat="server">
+if (errorMessage !== "") {
+Write("ERROR: " + safe(errorMessage));
+}
+</script>
+</div>
+<div class="table-container">
+<table id="automationTable">
+<thead>
+<tr>
+<th>#</th>
+<th>Automation Name</th>
+<th>Status</th>
+<th>Folder</th>
+<th>Location</th>
+<th>Created Date</th>
+<th>Modified Date</th>
+<th>Customer Key</th>
+</tr>
+</thead>
+
+<script runat="server">
+for (var j = 0; j < automationData.length; j++) {
+var a = automationData[j];
+var badgeColor = "#64748B";
+if (a.status == "Running") badgeColor = "#10B981";
+if (a.status == "Scheduled") badgeColor = "#06B6D4";
+if (a.status == "Paused") badgeColor = "#F59E0B";
+if (a.status == "Stopped" || a.status == "Error") badgeColor = "#EF4444";
+if (a.status == "Ready") badgeColor = "#10B981";
+Write("<tr data-folder="" + safe(a.location.toLowerCase()) + "">");
+Write("<td style='text-align:center; color:#64748b;'>" + (j + 1) + "</td>");
+Write("<td><strong>" + safe(a.name) + "</strong></td>");
+Write("<td><span class='badge' style='background:" + badgeColor + "'>" + safe(a.status) + "</span></td>");
+Write("<td><strong>" + safe(a.folder) + "</strong></td>");
+Write("<td><span class='location-path'>" + safe(a.location) + "</span></td>");
+Write("<td style='color:#64748b;'>" + safe(formatDate(a.createdDate)) + "</td>");
+Write("<td style='color:#64748b;'>" + safe(formatDate(a.modifiedDate)) + "</td>");
+Write("<td><code>" + safe(a.key) + "</code></td>");
+Write("</tr>");
+}
+if (automationData.length === 0 && errorMessage === "" && shouldLoad) {
+Write("<tr><td colspan='8' style='text-align: center; color: #64748B; padding: 20px;'>No automation records found.</td></tr>");
+}
+</script>
+
+</table>
+</div>
+</div>
+<script>
+function filterTable() {
+var query = document.getElementById("search").value.toLowerCase().trim();
+var selectedFolder = document.getElementById("folderFilter").value.toLowerCase();
+var rows = document.querySelectorAll("#automationTable tbody tr");
+rows.forEach(function(row) {
+if (row.cells.length < 8) return;
+var rowText = row.innerText.toLowerCase();
+var rowFolder = (row.getAttribute("data-folder") || "").toLowerCase();
+var matchesText = !query || rowText.includes(query);
+var matchesFolder = !selectedFolder || rowFolder === selectedFolder;
+row.style.display = (matchesText && matchesFolder) ? "" : "none";
+});
+}
+</script>
+
+
